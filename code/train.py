@@ -8,10 +8,12 @@ from datetime import datetime
 
 from train_loaddata import DataLoad
 
-model_path = '../model/{0:%Y-%m-%d}.pth'.format(datetime.now())
+from resnet import ResNet
+
+model_path = '../model/{0:%Y-%m-%d}/'.format(datetime.now())
 
 
-def train(device, model, data_dir, epochs=200, batch_size=1, lr=0.00001):
+def train(device, model, data_dir, epochs=200, batch_size=5, lr=0.00001):
     data = DataLoad(data_dir)
 
     if not os.path.exists(model_path):
@@ -42,23 +44,28 @@ def train(device, model, data_dir, epochs=200, batch_size=1, lr=0.00001):
     #     criterion = nn.SmoothL1Loss(reduction="sum")
     criterion = nn.L1Loss()
 
+    best_loss = float("inf")
+    best_val_loss = float("inf")
+
     for epoch in range(epochs):
 
         print("epoch: {}".format(epoch))
         net.train()
 
-        for image, label in train_data:
+        for train, label in train_data:
             optimizer.zero_grad()
 
-            image = image.to(device=device, dtype=torch.float32)
+            train = train.to(device=device, dtype=torch.float32)
             label = label.to(device=device, dtype=torch.float32)
 
-            pred = net(image)
+            # print(train.shape)
+
+            pred = net(train)
             loss = criterion(pred, label)
 
             if loss < best_loss:
                 best_loss = loss
-                torch.save(net.state_dict(), model_path)
+                torch.save(net.state_dict(), model_path + "train_model.pth")
 
             loss.backward()
             optimizer.step()
@@ -77,7 +84,7 @@ def train(device, model, data_dir, epochs=200, batch_size=1, lr=0.00001):
 
         if np.mean(val_loss_line) < best_val_loss:
             best_val_loss = np.mean(val_loss_line)
-            torch.save(net.state_dict(), model_path)
+            torch.save(net.state_dict(), model_path + "val_model.pth")
         print("loss/val", best_val_loss)
 
     return 0
@@ -86,6 +93,10 @@ def train(device, model, data_dir, epochs=200, batch_size=1, lr=0.00001):
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+    print(device)
+
     data_dir = '../data/train/train_shaped.csv'
+
+    model = ResNet(input_size=1, num_classes=1)
 
     train(device, model, data_dir)
