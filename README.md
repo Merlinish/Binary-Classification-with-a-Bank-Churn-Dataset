@@ -7,4 +7,4 @@
 # model
 ## ResNet
 I modify a little, structure below:
-![ResNet_stru_img.png](code%2FResNet_stru_img.png)
+![ResNet_stru_img.png](https://photos.onedrive.com/photo/11A09967C05EB4F0!8472?view=all)
