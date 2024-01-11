@@ -21,8 +21,8 @@ class DataLoad(Dataset):
 
     def __getitem__(self, index):
         # print(index)
-        train = np.squeeze(self.train[index])
-        label = np.squeeze(self.label[index])
+        train = np.reshape(self.train[index], (1, 10, 1))
+        label = np.reshape(self.label[index], (1, 1, 1))
         # print(self.train[index], self.label[index])
         return train, label
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     print("start iter")
     for a, b in train:
         print(a.shape, b.shape)
-        print(a, b)
+        # print(a, b)
     # a, b = next(iter(train))
     # print(a.shape, b.shape)
     # print(a, b)
